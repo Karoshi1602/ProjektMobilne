@@ -155,7 +155,7 @@
                 custom:avDensity="0.5"
                 custom:avType="outline"
                 custom:avWidth="4dp"
-                custom:avColor="#0015D6"
+                custom:avColor="#1F79DF"
                 custom:avSpeed="normal"/>
         </RelativeLayout>
     </LinearLayout>
