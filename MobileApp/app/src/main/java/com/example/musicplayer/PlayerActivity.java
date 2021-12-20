@@ -1,6 +1,10 @@
 package com.example.musicplayer;
 
+import static com.example.musicplayer.AlbumDetailsAdapter.albumFiles;
 import static com.example.musicplayer.MainActivity.musicFiles;
+import static com.example.musicplayer.MainActivity.repeatBoolean;
+import static com.example.musicplayer.MainActivity.shuffleBoolean;
+import static com.example.musicplayer.MusicAdapter.mFiles;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -71,6 +76,36 @@ public class PlayerActivity extends AppCompatActivity {
                 handler.postDelayed(this, 1000);
             }
         });
+        shuffleBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (shuffleBoolean)
+                {
+                    shuffleBoolean = false;
+                    shuffleBtn.setImageResource(R.drawable.ic_shuffle_off);
+                }
+                else
+                {
+                    shuffleBoolean = true;
+                    shuffleBtn.setImageResource(R.drawable.ic_shuffle_on);
+                }
+            }
+        });
+        repeatBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (repeatBoolean)
+                {
+                    repeatBoolean = false;
+                    repeatBtn.setImageResource(R.drawable.ic_repeat_off);
+                }
+                else
+                {
+                    repeatBoolean = true;
+                    repeatBtn.setImageResource(R.drawable.ic_repeat_on);
+                }
+            }
+        });
     }
 
     @Override
@@ -103,7 +138,13 @@ public class PlayerActivity extends AppCompatActivity {
         {
             mediaPlayer.stop();
             mediaPlayer.release();
-            position = ((position - 1) < 0 ? (listSongs.size() - 1) : (position - 1));
+            if (shuffleBoolean && !repeatBoolean)
+            {
+                position = getRandom(listSongs.size() - 1);
+            }
+            else if (!shuffleBoolean && !repeatBoolean) {
+                position = ((position - 1) < 0 ? (listSongs.size() - 1) : (position - 1));
+            }
             uri = Uri.parse(listSongs.get(position).getPath());
             mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
             metaData(uri);
@@ -128,7 +169,13 @@ public class PlayerActivity extends AppCompatActivity {
         {
             mediaPlayer.stop();
             mediaPlayer.release();
-            position = ((position - 1) < 0 ? (listSongs.size() - 1) : (position - 1));
+            if (shuffleBoolean && !repeatBoolean)
+            {
+                position = getRandom(listSongs.size() - 1);
+            }
+            else if (!shuffleBoolean && !repeatBoolean) {
+                position = ((position - 1) < 0 ? (listSongs.size() - 1) : (position - 1));
+            }
             uri = Uri.parse(listSongs.get(position).getPath());
             mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
             metaData(uri);
@@ -173,7 +220,14 @@ public class PlayerActivity extends AppCompatActivity {
         {
             mediaPlayer.stop();
             mediaPlayer.release();
-            position = ((position + 1) % listSongs.size());
+            if (shuffleBoolean && !repeatBoolean)
+            {
+                position = getRandom(listSongs.size() - 1);
+            }
+            else if (!shuffleBoolean && !repeatBoolean) {
+                position = ((position + 1) % listSongs.size());
+            }
+
             uri = Uri.parse(listSongs.get(position).getPath());
             mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
             metaData(uri);
@@ -198,6 +252,13 @@ public class PlayerActivity extends AppCompatActivity {
         {
             mediaPlayer.stop();
             mediaPlayer.release();
+            if (shuffleBoolean && !repeatBoolean)
+            {
+                position = getRandom(listSongs.size() - 1);
+            }
+            else if (!shuffleBoolean && !repeatBoolean) {
+                position = ((position + 1) % listSongs.size());
+            }
             position = ((position + 1) % listSongs.size());
             uri = Uri.parse(listSongs.get(position).getPath());
             mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
@@ -218,6 +279,11 @@ public class PlayerActivity extends AppCompatActivity {
             });
             playPauseBtn.setImageResource(R.drawable.ic_play);
         }
+    }
+
+    private int getRandom(int i) {
+        Random random = new Random();
+        return random.nextInt(i + 1);
     }
 
     private void playThreadBtn() {
@@ -294,7 +360,14 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void getIntenMethod() {
         position = getIntent().getIntExtra("position", -1);
-        listSongs = musicFiles;
+        String sender = getIntent().getStringExtra("sender");
+        if (sender != null && sender.equals("albumDetails"))
+        {
+            listSongs = albumFiles;
+        }
+        else {
+            listSongs = mFiles;
+        }
         if (listSongs != null)
         {
             playPauseBtn.setImageResource(R.drawable.ic_pause);
